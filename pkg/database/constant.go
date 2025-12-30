@@ -1,5 +1,6 @@
 package database
 
 const (
-	DriverPostgresSql = "postgres"
+	DriverPostgresSql = "postgresql"
+	DriverMysql       = "mysql"
 )

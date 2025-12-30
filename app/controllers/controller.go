@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"paymentserviceklink/app/repositories"
-	"paymentserviceklink/config"
-	"paymentserviceklink/pkg/pagination"
+	"donasitamanzakattest/app/repositories"
+	"donasitamanzakattest/config"
+	"donasitamanzakattest/pkg/pagination"
 	"time"
 
 	"github.com/gin-gonic/gin"

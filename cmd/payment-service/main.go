@@ -1,8 +1,8 @@
 package main
 
 import (
+	appiinit "donasitamanzakattest/init"
 	"os"
-	appiinit "paymentserviceklink/init"
 	"time"
 )
 

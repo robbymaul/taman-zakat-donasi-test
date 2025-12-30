@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"donasitamanzakattest/app/services"
+	"donasitamanzakattest/app/web"
 	"net/http"
-	"paymentserviceklink/app/services"
-	"paymentserviceklink/app/web"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (c *Controller) HealthController(ctx *gin.Context) {

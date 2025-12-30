@@ -1,11 +1,11 @@
 package pagination
 
 import (
+	"donasitamanzakattest/app/web"
+	"donasitamanzakattest/pkg/util"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"paymentserviceklink/app/web"
-	"paymentserviceklink/pkg/util"
 	"strconv"
 	"strings"
 	"time"

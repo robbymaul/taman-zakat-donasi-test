@@ -1,0 +1,73 @@
+buatkan saya sebuah api category dengan METHOD POST GET UPDATE DELETE
+
+endpoint: /categories
+
+method post /categories
+request body:
+{
+    name: ""
+}
+
+response body:
+{
+    message: "",
+    success: true,
+    data: {
+        id: randomstring,
+        name: ""
+    }
+}
+
+method get /categories (find)
+response body:
+{
+    message: "",
+    success: true,
+    data: [
+        {
+            id: randomstring,
+            name: ""
+        }
+    ]
+}
+
+method get /categories/:id (get one)
+response body:
+{
+    message: "",
+    success: true,
+    data: {
+        id: randomstring,
+        name: ""
+    }
+}
+
+method update /categories/:id
+request body:
+{
+    name: ""
+}
+
+response body:
+{
+    message: "",
+    success: true,
+    data: {
+        id: randomstring,
+        name: ""
+    }
+}
+
+method delete /categories/:id
+response body:
+{
+    message: "",
+    success: true,
+    data: {
+        id: randomstring,
+        name: ""
+    }
+}
+
+untuk awal saya ingin membuat 6 cateogy sebagai data dummy saat aplikasinya awal di jalankan, dan di simpan dalam ram aplikasi.
+id yang di tentukan dengan random string agar mudah saat melakukan get one atau update atau delete.

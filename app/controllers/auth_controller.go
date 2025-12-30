@@ -1,42 +1,27 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
+	"donasitamanzakattest/app/helpers"
+	"donasitamanzakattest/app/services"
+	"donasitamanzakattest/app/web"
 	"net/http"
-	"paymentserviceklink/app/helpers"
-	"paymentserviceklink/app/services"
-	"paymentserviceklink/app/validate"
-	"paymentserviceklink/app/web"
-	pkgjwt "paymentserviceklink/pkg/jwt"
-	"paymentserviceklink/pkg/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
-func (c *Controller) AdminLoginController(ctx *gin.Context) {
-	c.context = "AdminAuth.AdminLoginController"
-	request := new(web.AdminLoginRequest)
+func (c *Controller) RegistrationController(ctx *gin.Context) {
+	req := new(web.RegistrationRequest)
 
-	err := ctx.ShouldBindJSON(request)
+	err := ctx.ShouldBindJSON(req)
 	if err != nil {
-		log.Debug().Err(err).Msg("should bind json body request error")
-		helpers.ErrorResponse(ctx, helpers.NewErrorTrace(err, c.context).WithStatusCode(http.StatusBadRequest))
+		helpers.ErrorResponse(ctx, helpers.NewErrorTrace(err, "registration").WithStatusCode(http.StatusBadRequest))
 		return
 	}
 
-	err = validate.ValidationAdminLoginRequest(request)
-	if err != nil {
-		log.Debug().Err(err).Msg("should validate admin login request")
-		helpers.ErrorResponse(ctx, helpers.NewErrorTrace(err, c.context).WithStatusCode(http.StatusBadRequest))
-		return
-	}
+	authService := services.NewAuthService(ctx, c.repo, c.cfg)
 
-	healthService := services.NewAdminService(ctx, c.repo, c.cfg)
-
-	response, err := healthService.AdminLoginService(request)
+	response, err := authService.RegistrationService(req)
 	if err != nil {
-		log.Debug().Err(err).Msg("admin login service error")
 		helpers.ErrorResponse(ctx, err)
 		return
 	}
@@ -46,16 +31,22 @@ func (c *Controller) AdminLoginController(ctx *gin.Context) {
 		Success: true,
 		Data:    response,
 	})
+
 }
 
-func (c *Controller) AdminMeController(ctx *gin.Context) {
-	c.context = "AdminAuth.AdminLoginController"
+func (c *Controller) LoginController(ctx *gin.Context) {
+	req := new(web.LoginRequest)
 
-	adminService := services.NewAdminService(ctx, c.repo, c.cfg)
-
-	response, err := adminService.GetDetailAdmin()
+	err := ctx.ShouldBindJSON(req)
 	if err != nil {
-		log.Debug().Err(err).Msg("get detail admin error")
+		helpers.ErrorResponse(ctx, helpers.NewErrorTrace(err, "login").WithStatusCode(http.StatusBadRequest))
+		return
+	}
+
+	authService := services.NewAuthService(ctx, c.repo, c.cfg)
+
+	response, err := authService.LoginService(req)
+	if err != nil {
 		helpers.ErrorResponse(ctx, err)
 		return
 	}
@@ -65,24 +56,4 @@ func (c *Controller) AdminMeController(ctx *gin.Context) {
 		Success: true,
 		Data:    response,
 	})
-}
-
-func (c *Controller) GetAdminSession(ctx context.Context) (*pkgjwt.JwtResponse, error) {
-	c.context = "Auth.GetAdminSession"
-
-	log.Debug().Ctx(ctx).Interface("context", c.context).Msg("get admin session")
-
-	value := ctx.Value(middleware.Session)
-	if value == nil {
-		return nil, helpers.NewErrorTrace(fmt.Errorf("unauthorized"), c.context).WithStatusCode(http.StatusUnauthorized)
-	}
-	log.Debug().Interface("value", value).Interface("context", c.context).Msg("get admin session")
-
-	session, ok := value.(*pkgjwt.JwtResponse)
-	if !ok {
-		return nil, helpers.NewErrorTrace(fmt.Errorf("unauthorized"), c.context).WithStatusCode(http.StatusUnauthorized)
-	}
-	log.Debug().Interface("ok", ok).Interface("session", session).Interface("context", c.context).Msg("value context jwt response")
-
-	return session, nil
 }

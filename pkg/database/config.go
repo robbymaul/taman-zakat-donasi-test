@@ -36,6 +36,8 @@ func (c *Config) NormalizeValue() {
 	switch c.Driver {
 	case "postgresql", "pg":
 		c.Driver = DriverPostgresSql
+	case "mysql":
+		c.Driver = DriverMysql
 	}
 }
 
@@ -43,6 +45,8 @@ func (c *Config) DSN() (dsn string, err error) {
 	switch c.Driver {
 	case DriverPostgresSql:
 		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%v TimeZone=%s", c.Host, c.Username, c.Password, c.Database, c.Port, c.SslMode, c.TimeZone)
+	case DriverMysql:
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local", c.Username, c.Password, c.Host, c.Port, c.Database)
 	default:
 		err = fmt.Errorf("connection database unsupported driver '%s'", c.Driver)
 	}

@@ -2,19 +2,16 @@ package init
 
 import (
 	"context"
+	"donasitamanzakattest/api/routes"
+	"donasitamanzakattest/app/repositories"
+	"donasitamanzakattest/config"
+	"donasitamanzakattest/pkg/middleware"
 	"errors"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
-	"paymentserviceklink/api/routes"
-	"paymentserviceklink/app/models"
-	"paymentserviceklink/app/repositories"
-	"paymentserviceklink/app/services"
-	"paymentserviceklink/config"
-	"paymentserviceklink/pkg/middleware"
-	"paymentserviceklink/pkg/util"
 	"syscall"
 	"time"
 
@@ -24,7 +21,6 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gorm.io/gorm"
 )
 
 const (
@@ -208,54 +204,6 @@ func HandleBootFlags(cmd *Command) *BootOptions {
 		os.Exit(0)
 	}
 
-	if *flags.CreateUserAdmin {
-		load, err := Load(&BootOptions{
-			WorkDir:   *flags.OptWorkDir,
-			EnvPrefix: *flags.OptEnvPrefix,
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		cmd.CreateUserAdmin(load)
-	}
-
-	if *flags.UpdatePasswordUserAdmin {
-		load, err := Load(&BootOptions{
-			WorkDir:   *flags.OptWorkDir,
-			EnvPrefix: *flags.OptEnvPrefix,
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		cmd.UpdatePasswordUserAdmin(load)
-	}
-
-	if *flags.MigrasiKWalletMasDion {
-		load, err := Load(&BootOptions{
-			WorkDir:   *flags.OptWorkDir,
-			EnvPrefix: *flags.OptEnvPrefix,
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		cmd.MigrasiKWalletMasDion(load)
-	}
-
-	if *flags.MigrasiKWalletMasAmmar {
-		load, err := Load(&BootOptions{
-			WorkDir:   *flags.OptWorkDir,
-			EnvPrefix: *flags.OptEnvPrefix,
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		cmd.MigrasiKWalletMasAmmar(load)
-	}
-
 	return &BootOptions{
 		WorkDir:   *flags.OptWorkDir,
 		EnvPrefix: *flags.OptEnvPrefix,
@@ -281,192 +229,4 @@ func Load(bootOptions *BootOptions) (*config.Config, error) {
 
 func PrintVersion() {
 	fmt.Printf("%s\n Version: %s\n Signature: %s\n", name, AppVersion, Build)
-}
-
-func (cmd *Command) CreateUserAdmin(cfg *config.Config) {
-	repo, err := repositories.NewRepository(cfg)
-	if err != nil {
-		fmt.Printf("failed to read database configuration. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	ctx := context.Background()
-
-	rc, err := repo.Connected(ctx)
-	if err != nil {
-		fmt.Printf("failed to connect to database. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	createdUserAdmin(rc, cfg)
-
-	os.Exit(0)
-
-}
-
-func (cmd *Command) UpdatePasswordUserAdmin(cfg *config.Config) {
-	repo, err := repositories.NewRepository(cfg)
-	if err != nil {
-		fmt.Printf("failed to read database configuration. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	ctx := context.Background()
-
-	rc, err := repo.Connected(ctx)
-	if err != nil {
-		fmt.Printf("failed to connect to database. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	updatePasswordUserAdmin(rc, cfg)
-
-	os.Exit(0)
-}
-
-func (cmd *Command) MigrasiKWalletMasDion(cfg *config.Config) {
-	repo, err := repositories.NewRepository(cfg)
-	if err != nil {
-		fmt.Printf("failed to read database configuration. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	ctx := context.Background()
-
-	rc, err := repo.Connected(ctx)
-	if err != nil {
-		fmt.Printf("failed to connect to database. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	migrasiKWalletMasDion(rc, cfg)
-
-	os.Exit(0)
-}
-
-func (cmd *Command) MigrasiKWalletMasAmmar(cfg *config.Config) {
-	repo, err := repositories.NewRepository(cfg)
-	if err != nil {
-		fmt.Printf("failed to read database configuration. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	ctx := context.Background()
-
-	rc, err := repo.Connected(ctx)
-	if err != nil {
-		fmt.Printf("failed to connect to database. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	migrasiKWalletMasAmmar(rc, cfg)
-
-	os.Exit(0)
-}
-
-func migrasiKWalletMasAmmar(rc *repositories.RepositoryContext, cfg *config.Config) {
-	ctx := context.Background()
-	migrationService := services.NewMigration(ctx, rc, cfg)
-
-	err := migrationService.MigrasiKWalletMasAmmar()
-	if err != nil {
-		fmt.Printf("failed to migrate k-wallet mas dion. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	os.Exit(0)
-}
-
-func migrasiKWalletMasDion(rc *repositories.RepositoryContext, cfg *config.Config) {
-	ctx := context.Background()
-	migrationService := services.NewMigration(ctx, rc, cfg)
-
-	err := migrationService.MigrasiKWalletMasDion()
-	if err != nil {
-		fmt.Printf("failed to migrate k-wallet mas ammar. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	os.Exit(0)
-}
-
-func updatePasswordUserAdmin(rc *repositories.RepositoryContext, cfg *config.Config) string {
-	adminUser, err := rc.GetAdminUserByCLIRepository(context.Background(), 1)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			fmt.Printf("super admin has never been created")
-			os.Exit(0)
-		}
-
-		fmt.Printf("failed to get admin user. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	password := util.GenerateRandomString(10)
-	hashPassword, err := util.HashPassword(password)
-	if err != nil {
-		fmt.Printf("failed to hash password. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	adminUser.Password = hashPassword
-
-	err = rc.UpdateAdminUserRepository(context.Background(), func(db *gorm.DB) *gorm.DB {
-		db = db.Where("id = ?", adminUser.Id).Omit("id")
-		updateColumn := map[string]interface{}{
-			"password":   hashPassword,
-			"updated_at": time.Now(),
-		}
-		db = db.UpdateColumns(updateColumn)
-		return db
-	})
-	if err != nil {
-		fmt.Printf("failed to update admin user. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	fmt.Printf("password updated successfully: %s", password)
-
-	return password
-
-}
-
-func createdUserAdmin(rc *repositories.RepositoryContext, cfg *config.Config) (string, string) {
-	password := util.GenerateRandomString(10)
-	hashPassword, err := util.HashPassword(password)
-	if err != nil {
-		fmt.Printf("failed to hash password. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	adminUser := &models.AdminUsers{
-		UUID:                uuid.New(),
-		Username:            "super_admin_payment_service",
-		Email:               "super.admin.payment.service@email.com",
-		Password:            hashPassword,
-		FullName:            "Super Admin Payment Service",
-		Phone:               "0211111111111",
-		AvatarUrl:           "",
-		RoleId:              1,
-		IsActive:            true,
-		IsVerified:          true,
-		LastLoginAt:         nil,
-		LastLoginIp:         "",
-		FailedLoginAttempts: 0,
-		LockedUntil:         nil,
-		PasswordChangedAt:   nil,
-		TwoFactorEnabled:    false,
-		TwoFactorSecret:     "",
-		AdminRole:           nil,
-	}
-
-	_, err = rc.InsertAdminUserRepository(context.Background(), adminUser)
-	if err != nil {
-		fmt.Printf("failed to insert admin user. Error = [%v]", err)
-		os.Exit(0)
-	}
-
-	fmt.Printf("created super admin account, email: %s, password: %s", adminUser.Email, password)
-
-	return adminUser.Username, password
 }

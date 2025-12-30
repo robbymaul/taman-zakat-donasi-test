@@ -2,11 +2,12 @@ package repositories
 
 import (
 	"context"
+	"donasitamanzakattest/config"
+	"donasitamanzakattest/pkg/database"
+	"donasitamanzakattest/pkg/util"
 	"fmt"
+
 	"github.com/rs/zerolog/log"
-	"paymentserviceklink/config"
-	"paymentserviceklink/pkg/database"
-	"paymentserviceklink/pkg/util"
 )
 
 type Repository struct {
@@ -20,13 +21,13 @@ func NewRepository(cfg *config.Config) (*Repository, error) {
 	maxOpenConn := util.ParseIntFallback(cfg.DatabaseOpenConn, 100)
 	maxConnLifetime := util.ParseIntFallback(cfg.DatabaseMaxConnLifetime, 10)
 
-	database, err := database.NewDatabase(database.Config{
+	db, err := database.NewDatabase(database.Config{
 		Host:            cfg.DatabaseHost,
 		Port:            cfg.DatabasePort,
 		Username:        cfg.DatabaseUser,
 		Password:        cfg.DatabasePass,
 		Database:        cfg.DatabaseName,
-		Driver:          database.DriverPostgresSql,
+		Driver:          database.DriverMysql,
 		SslMode:         cfg.DatabaseSslMode,
 		TimeZone:        cfg.DatabaseTimezone,
 		MaxIdleConn:     &maxIdleConn,
@@ -45,7 +46,7 @@ func NewRepository(cfg *config.Config) (*Repository, error) {
 		return nil, err
 	}
 
-	return &Repository{db: database, cfg: cfg, Adapter: adapter}, nil
+	return &Repository{db: db, cfg: cfg, Adapter: adapter}, nil
 }
 
 func (r *Repository) Connect(ctx context.Context) *RepositoryContext {

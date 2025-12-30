@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	"paymentserviceklink/app/repositories"
-	"paymentserviceklink/app/web"
-	"paymentserviceklink/config"
+	"donasitamanzakattest/app/repositories"
+	"donasitamanzakattest/app/web"
+	"donasitamanzakattest/config"
 	"time"
 )
 
@@ -22,13 +22,10 @@ func NewHealthService(ctx context.Context, startTime time.Time, r *repositories.
 	}
 }
 
-func (s *HealthService) GetHealthService() *web.HealthResponseWeb {
-	return &web.HealthResponseWeb{
+func (s *HealthService) GetHealthService() *web.Health {
+	return &web.Health{
 		AppName:    s.config.Application,
 		Uptime:     time.Since(s.StartTime).String(),
 		AppVersion: "N/A",
-		Resource: web.ResourcesWeb{
-			Database: "OK",
-		},
 	}
 }

@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"context"
+	"donasitamanzakattest/app/repositories"
+	"donasitamanzakattest/config"
+	pkgjwt "donasitamanzakattest/pkg/jwt"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"net/http"
-	"paymentserviceklink/app/repositories"
-	"paymentserviceklink/config"
-	pkgjwt "paymentserviceklink/pkg/jwt"
-	"strings"
 )
 
 type Auth struct {

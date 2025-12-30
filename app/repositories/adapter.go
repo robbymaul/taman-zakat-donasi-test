@@ -1,13 +1,9 @@
 package repositories
 
 import (
+	restyclient "donasitamanzakattest/app/client/resty"
+	"donasitamanzakattest/config"
 	"fmt"
-	"paymentserviceklink/app/client/espay"
-	"paymentserviceklink/app/client/midtrans"
-	restyclient "paymentserviceklink/app/client/resty"
-	clientsenangpay "paymentserviceklink/app/client/senangpay"
-	"paymentserviceklink/app/strategy"
-	"paymentserviceklink/config"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -16,11 +12,7 @@ import (
 
 type Adapter struct {
 	JakartaLoc *time.Location
-	Senangpay  *clientsenangpay.Senangpay
-	Midtrans   *midtrans.Midtrans
-	Espay      *espay.Espay
 	HttpClient *restyclient.RestyClient
-	Strategy   *strategy.Strategy
 	Minio      *minio.Client
 }
 

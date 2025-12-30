@@ -1,18 +1,22 @@
 package database
 
 import (
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {
 	Config *Config
 	DSN    string
 	DB     *gorm.DB
+	Driver string
 }
 
 func NewDatabase(config Config) (*Database, error) {
@@ -26,10 +30,10 @@ func NewDatabase(config Config) (*Database, error) {
 	}
 
 	// set config
-
 	db := Database{
 		Config: &config,
 		DSN:    dsn,
+		Driver: config.Driver,
 	}
 
 	return &db, nil
@@ -53,12 +57,27 @@ func (d *Database) Init() error {
 			Colorful:             true,        // Disable color
 		},
 	)
+	var connection *gorm.DB
+	var err error
+
 	// create connection
-	connection, err := gorm.Open(postgres.Open(d.DSN), &gorm.Config{
-		Logger: newLogger,
-	})
-	if err != nil {
-		return err
+	switch d.Driver {
+	case DriverPostgresSql:
+		connection, err = gorm.Open(postgres.Open(d.DSN), &gorm.Config{
+			Logger: newLogger,
+		})
+		if err != nil {
+			return err
+		}
+	case DriverMysql:
+		connection, err = gorm.Open(mysql.Open(d.DSN), &gorm.Config{
+			Logger: newLogger,
+		})
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("connection database unsupported driver '%s'", d.Driver)
 	}
 
 	db, err := connection.DB()

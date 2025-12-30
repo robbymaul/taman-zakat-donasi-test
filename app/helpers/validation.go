@@ -1,10 +1,11 @@
 package helpers
 
 import (
+	"donasitamanzakattest/app/models"
+	"donasitamanzakattest/pkg/pagination"
 	"fmt"
-	"paymentserviceklink/app/models"
-	"paymentserviceklink/pkg/pagination"
 	"slices"
+
 	"time"
 
 	"github.com/rs/zerolog/log"

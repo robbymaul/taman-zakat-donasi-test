@@ -19,3 +19,14 @@ type ListResponse struct {
 	Items    any       `json:"data"`
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
+
+type Session struct {
+	Token     string `json:"token"`
+	ExpiredAt int64  `json:"expiredAt"`
+}
+
+type Health struct {
+	AppName    string `json:"appName"`
+	Uptime     string `json:"uptime"`
+	AppVersion string `json:"appVersion"`
+}
