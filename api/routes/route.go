@@ -77,7 +77,9 @@ func (r *Route) initRoute() {
 func (r *Route) public() {
 	public := r.router.Group("/public")
 	r.categoriesPublic(public)
+	r.campaignsPublic(public)
 	r.authPublic(public)
+	r.postsPublic(public)
 }
 
 func (r *Route) categoriesPublic(public *gin.RouterGroup) {
@@ -93,5 +95,29 @@ func (r *Route) authPublic(public *gin.RouterGroup) {
 		auth := public.Group("/auth")
 		auth.POST("/registration", r.ctrl.RegistrationController)
 		auth.POST("/login", r.ctrl.LoginController)
+	}
+}
+
+func (r *Route) campaignsPublic(public *gin.RouterGroup) {
+	{
+		campaigns := public.Group("/campaigns")
+		campaigns.GET("", r.ctrl.PublicListCampaignController)
+		campaigns.GET("/:slug", r.ctrl.PublicGetCampaignController)
+		donatur := campaigns.Group("/donatur")
+		{
+			donatur.GET("/:campaign-id", r.ctrl.PublicListGetCampaignDonaturController)
+		}
+		comments := campaigns.Group("/comments")
+		{
+			comments.GET("/:campaign-id", r.ctrl.PublicListGetCampaignCommentController)
+		}
+	}
+}
+
+func (r *Route) postsPublic(public *gin.RouterGroup) {
+	{
+		posts := public.Group("/posts")
+		posts.GET("", r.ctrl.PublicListPostsController)
+		posts.GET("/:post-name", r.ctrl.PublicGetPostsController)
 	}
 }

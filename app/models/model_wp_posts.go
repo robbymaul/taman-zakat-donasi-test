@@ -31,3 +31,23 @@ type WpPost struct {
 func (WpPost) TableName() string {
 	return "wp_posts"
 }
+
+type ListWpPost struct {
+	ID         uint64    `gorm:"column:id;primaryKey" json:"id"`
+	PostAuthor uint64    `gorm:"column:post_author" json:"postAuthor"`
+	PostDate   time.Time `gorm:"column:post_date" json:"postDate"`
+	PostTitle  string    `gorm:"column:post_title" json:"postTitle"`
+	PostName   string    `gorm:"column:post_name" json:"postName"`
+}
+
+type DetailWpPost struct {
+	ID            uint64    `gorm:"column:id;primaryKey" json:"id"`
+	PostAuthor    uint64    `gorm:"column:post_author" json:"postAuthor"`
+	PostDate      time.Time `gorm:"column:post_date" json:"postDate"`
+	PostTitle     string    `gorm:"column:post_title" json:"postTitle"`
+	PostName      string    `gorm:"column:post_name" json:"postName"`
+	PostContent   string    `gorm:"column:post_content" json:"postContent"`
+	PostStatus    string    `gorm:"column:post_status" json:"postStatus"`
+	CommentStatus string    `gorm:"column:comment_status" json:"commentStatus"`
+	PingStatus    string    `gorm:"column:ping_status" json:"pingStatus"`
+}

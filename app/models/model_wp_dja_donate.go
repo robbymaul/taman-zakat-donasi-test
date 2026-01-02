@@ -59,3 +59,20 @@ type WpDjaDonate struct {
 func (WpDjaDonate) TableName() string {
 	return "wp_dja_donate"
 }
+
+type ListCampaignWpDjaDonate struct {
+	ID         int        `gorm:"column:id;primaryKey" json:"id"`
+	CampaignID *string    `gorm:"column:campaign_id" json:"campaignId"`
+	Name       *string    `gorm:"column:name" json:"name"`
+	Nominal    *float64   `gorm:"column:nominal" json:"nominal"`
+	PaymentAt  *time.Time `gorm:"column:payment_at" json:"paymentAt"`
+	CreatedAt  *time.Time `gorm:"column:created_at" json:"createdAt"`
+}
+
+type ListCampaignWpDjaComment struct {
+	ID         int        `gorm:"column:id;primaryKey" json:"id"`
+	CampaignID *string    `gorm:"column:campaign_id" json:"campaignId"`
+	Name       *string    `gorm:"column:name" json:"name"`
+	Comment    *string    `gorm:"column:comment" json:"comment"`
+	CreatedAt  *time.Time `gorm:"column:created_at" json:"createdAt"`
+}

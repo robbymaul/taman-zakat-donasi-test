@@ -96,3 +96,30 @@ type WpDjaCampaign struct {
 func (WpDjaCampaign) TableName() string {
 	return "wp_dja_campaign"
 }
+
+type ListPriorityWpDjaCampaign struct {
+	ID         int     `gorm:"column:id;primaryKey" json:"id"`
+	UserID     *int64  `gorm:"column:user_id" json:"-"`
+	CampaignID *string `gorm:"column:campaign_id" json:"campaignId"`
+	Title      *string `gorm:"column:title" json:"title"`
+	Slug       *string `gorm:"column:slug" json:"slug"`
+	ImageURL   *string `gorm:"column:image_url" json:"imageUrl"`
+	Owner      *string `gorm:"column:owner" json:"owner"`
+}
+
+type DetailWpDjaCampaign struct {
+	ID                int      `gorm:"column:id;primaryKey" json:"id"`
+	UserID            *int64   `gorm:"column:user_id" json:"-"`
+	CampaignID        *string  `gorm:"column:campaign_id" json:"campaignId"`
+	Slug              *string  `gorm:"column:slug" json:"slug"`
+	ImageURL          *string  `gorm:"column:image_url" json:"imageUrl"`
+	Title             *string  `gorm:"column:title" json:"title"`
+	Target            *float64 `gorm:"column:target" json:"target"`
+	Owner             *string  `gorm:"column:owner" json:"owner"`
+	TotalDonasi       *float64 `gorm:"total_donasi" json:"totalDonasi"`
+	TotalDonatur      *int     `gorm:"total_donatur" json:"totalDonatur"`
+	OwnerImage        *string  `gorm:"column:owner_image" json:"ownerImage"`
+	OwnerType         *string  `gorm:"column:owner_type" json:"ownerType"`
+	OwnerVerification int      `gorm:"column:owner_verification" json:"ownerVerification"`
+	Information       *string  `gorm:"column:information" json:"information"`
+}
