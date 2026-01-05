@@ -1,6 +1,9 @@
 package repositories
 
-import "donasitamanzakattest/app/models"
+import (
+	"donasitamanzakattest/app/models"
+	"errors"
+)
 
 func (rc *RepositoryContext) PublicListPostsRepository() ([]*models.ListWpPost, error) {
 	var posts []*models.ListWpPost
@@ -42,6 +45,10 @@ func (rc *RepositoryContext) PublicGetPostsRepository(postName string) (*models.
 	err = db.Error
 	if err != nil {
 		return nil, err
+	}
+
+	if posts == nil {
+		return nil, errors.New("posts not found")
 	}
 
 	return posts, err

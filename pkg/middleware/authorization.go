@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (a *Auth) AdminAuthorization() gin.HandlerFunc {
+func (a *Auth) Authorization() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		value, exists := ctx.Get(BearerToken)
 		if !exists {

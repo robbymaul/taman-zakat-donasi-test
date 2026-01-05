@@ -57,3 +57,19 @@ func (c *Controller) LoginController(ctx *gin.Context) {
 		Data:    response,
 	})
 }
+
+func (c *Controller) PrivateGetProfileController(ctx *gin.Context) {
+	authService := services.NewAuthService(ctx, c.repo, c.cfg)
+
+	response, err := authService.PrivateGetProfileService()
+	if err != nil {
+		helpers.ErrorResponse(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, web.ResponseWeb{
+		Message: "OK",
+		Success: true,
+		Data:    response,
+	})
+}

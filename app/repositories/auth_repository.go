@@ -4,6 +4,8 @@ import (
 	"context"
 	"donasitamanzakattest/app/models"
 	"donasitamanzakattest/app/web"
+	pkgjwt "donasitamanzakattest/pkg/jwt"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -75,11 +77,11 @@ func (rc *RepositoryContext) RegistrationRepository(ctx context.Context, registe
 }
 
 func (rc *RepositoryContext) LoginRepository(ctx context.Context, req *web.LoginRequest) (*models.WpUsersLogin, error) {
-	var wpUser models.WpUsersLogin
+	var wpUser *models.WpUsersLogin
 	var err error
 	var db = rc.db
 
-	query := "SELECT wp_users.id as id, wp_users.user_email as email, wp_users.user_pass as password, wp_users.display_name as full_name, wp_dja_users.user_verification as status " +
+	query := "SELECT wp_users.user_login as user_login, wp_users.id as id, wp_users.user_email as email, wp_users.user_pass as password, wp_users.display_name as full_name, wp_dja_users.user_verification as status " +
 		"FROM wp_users " +
 		"JOIN wp_dja_users ON wp_users.id = wp_dja_users.user_id " +
 		"WHERE user_email = ?"
@@ -93,5 +95,60 @@ func (rc *RepositoryContext) LoginRepository(ctx context.Context, req *web.Login
 		return nil, err
 	}
 
-	return &wpUser, err
+	if wpUser == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return wpUser, err
+}
+
+func (rc *RepositoryContext) GetSessionRepository(session *pkgjwt.JwtResponse) (*models.WpUserSession, error) {
+	var wpUserSession *models.WpUserSession
+	var err error
+	var db = rc.db
+
+	query := "SELECT wpu.ID as id, wpu.user_email as email, wpu.display_name as full_name " +
+		"FROM wp_users as wpu " +
+		"WHERE wpu.user_login = ? "
+
+	db = db.Raw(query, session.Sub)
+
+	db = db.Scan(&wpUserSession)
+
+	err = db.Error
+	if err != nil {
+		return nil, err
+	}
+
+	if wpUserSession == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return wpUserSession, err
+}
+
+func (rc *RepositoryContext) PrivateGetProfileRepository(session *models.WpUserSession) (*models.WpUserProfile, error) {
+	var wpUserProfile *models.WpUserProfile
+	var err error
+	var db = rc.db
+
+	query := "SELECT wpu.ID as id, wpu.user_nicename as username, wpu.display_name as full_name, wpu.user_email as email, wpdu.user_provinsi as province, wpdu.user_kabkota as city, wpdu.user_alamat as address, wpdu.user_cover_img as cover_picture, wpdu.user_pp_img as profile_picture, wpdu.user_sapaan as greeting, wpdu.user_bank_no as account, wpdu.user_bank_an as account_name, wpdu.user_bank_name as bank, wpdu.user_wa as whatsapp, wpdu.user_bio as biography " +
+		"FROM wp_users as wpu " +
+		"JOIN wp_dja_users as wpdu ON wpdu.user_id = wpu.ID " +
+		"WHERE wpu.ID = ?"
+
+	db = db.Raw(query, session.ID)
+
+	db = db.Scan(&wpUserProfile)
+
+	err = db.Error
+	if err != nil {
+		return nil, err
+	}
+
+	if wpUserProfile == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return wpUserProfile, err
 }

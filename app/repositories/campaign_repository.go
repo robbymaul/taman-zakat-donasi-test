@@ -1,6 +1,9 @@
 package repositories
 
-import "donasitamanzakattest/app/models"
+import (
+	"donasitamanzakattest/app/models"
+	"errors"
+)
 
 func (rc *RepositoryContext) PublicListCampaignRepository() ([]*models.ListPriorityWpDjaCampaign, error) {
 	var campaigns []*models.ListPriorityWpDjaCampaign
@@ -45,6 +48,10 @@ func (rc *RepositoryContext) PublicGetCampaignRepository(slug string) (*models.D
 	err = db.Error
 	if err != nil {
 		return nil, err
+	}
+
+	if campaign == nil {
+		return nil, errors.New("campaign not found")
 	}
 
 	return campaign, err

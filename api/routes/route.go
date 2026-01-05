@@ -72,6 +72,7 @@ func (r *Route) initRoute() {
 	}
 
 	r.public()
+	r.private()
 }
 
 func (r *Route) public() {
@@ -80,6 +81,12 @@ func (r *Route) public() {
 	r.campaignsPublic(public)
 	r.authPublic(public)
 	r.postsPublic(public)
+}
+
+func (r *Route) private() {
+	private := r.router.Group("/private", r.auth.Authentication())
+	r.authPrivate(private)
+
 }
 
 func (r *Route) categoriesPublic(public *gin.RouterGroup) {
@@ -119,5 +126,12 @@ func (r *Route) postsPublic(public *gin.RouterGroup) {
 		posts := public.Group("/posts")
 		posts.GET("", r.ctrl.PublicListPostsController)
 		posts.GET("/:post-name", r.ctrl.PublicGetPostsController)
+	}
+}
+
+func (r *Route) authPrivate(private *gin.RouterGroup) {
+	auth := private.Group("/auth")
+	{
+		auth.GET("/profile", r.auth.Authorization(), r.ctrl.PrivateGetProfileController)
 	}
 }

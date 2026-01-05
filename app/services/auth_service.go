@@ -21,6 +21,7 @@ import (
 type IAuthService interface {
 	RegistrationService(req *web.RegistrationRequest) (*web.Session, error)
 	LoginService(req *web.LoginRequest) (*web.Session, error)
+	PrivateGetProfileService() (*models.WpUserProfile, error)
 }
 
 type AuthService struct {
@@ -46,10 +47,12 @@ func (s *AuthService) RegistrationService(req *web.RegistrationRequest) (*web.Se
 	rCode := util.GenerateRandomString(12)
 	status := 0
 
-	hashPw, err := util.PHPPassHashPassword(req.Password)
+	hashPw, err := util.HashPassword(req.Password)
 	if err != nil {
 		return nil, helpers.NewErrorTrace(err, "hash password").WithStatusCode(http.StatusInternalServerError)
 	}
+
+	hashPw = "$wp" + hashPw
 
 	register = &models.WpDjaRegister{
 		RNamaLengkap: &req.FullName,
@@ -115,9 +118,9 @@ func (s *AuthService) RegistrationService(req *web.RegistrationRequest) (*web.Se
 
 	payloadJwt := pkgjwt.IssueJwtPayload{
 		Id:       0,
-		Subject:  "",
+		Subject:  wpUser.UserLogin,
 		Role:     "",
-		Lifetime: 0,
+		Lifetime: 3600,
 		Email:    *register.REmail,
 		FullName: *register.RNamaLengkap,
 		Code:     *register.RCode,
@@ -150,16 +153,16 @@ func (s *AuthService) LoginService(req *web.LoginRequest) (*web.Session, error) 
 		return nil, helpers.NewErrorTrace(fmt.Errorf("user not found"), "login").WithStatusCode(http.StatusUnauthorized)
 	}
 
-	valid := util.PHPPassCheckPassword(req.Password, wpUser.Password)
-	if !valid {
-		return nil, helpers.NewErrorTrace(fmt.Errorf("invalid password"), "login").WithStatusCode(http.StatusUnauthorized)
+	validPW := util.CheckPassword(wpUser.Password, req.Password)
+	if !validPW {
+		return nil, helpers.NewErrorTrace(fmt.Errorf("email or password incorrect"), "login").WithStatusCode(http.StatusUnauthorized)
 	}
 
 	payloadJwt := pkgjwt.IssueJwtPayload{
 		Id:       0,
-		Subject:  "",
+		Subject:  wpUser.UserLogin,
 		Role:     "",
-		Lifetime: 0,
+		Lifetime: 3600,
 		Email:    wpUser.Email,
 		FullName: wpUser.FullName,
 		Code:     "",
@@ -174,4 +177,22 @@ func (s *AuthService) LoginService(req *web.LoginRequest) (*web.Session, error) 
 	}
 
 	return session, err
+}
+
+func (s *AuthService) PrivateGetProfileService() (*models.WpUserProfile, error) {
+	var wpUserProfile *models.WpUserProfile
+	var wpUserSession *models.WpUserSession
+	var err error
+
+	wpUserSession, err = s.GetSessionService()
+	if err != nil {
+		return nil, helpers.NewErrorTrace(fmt.Errorf("harap melakukan login terlebih dahulu"), "session").WithStatusCode(http.StatusUnauthorized)
+	}
+
+	wpUserProfile, err = s.repository.PrivateGetProfileRepository(wpUserSession)
+	if err != nil {
+		return nil, helpers.NewErrorTrace(err, "profile").WithStatusCode(http.StatusInternalServerError)
+	}
+
+	return wpUserProfile, err
 }

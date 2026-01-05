@@ -32,10 +32,14 @@ type IssueJwtPayload struct {
 
 // JwtResponse represents the JWT response format.
 type JwtResponse struct {
-	Id   int64  `json:"id"`
-	Sub  string `json:"sub"`
-	Role string `json:"role"`
-	Exp  int64  `json:"exp"`
+	Id       int64  `json:"id"`
+	Exp      int64  `json:"exp"`
+	Sub      string `json:"sub"`
+	Role     string `json:"role"`
+	Email    string `json:"email"`
+	FullName string `json:"fullName"`
+	Code     string `json:"code"`
+	Status   string `json:"status"`
 }
 
 // NewJwtAdapter creates a new instance of JwtAdapter.
@@ -43,7 +47,7 @@ func NewJwtAdapter(issuer, secret string) *JwtAdapter {
 	return &JwtAdapter{
 		Algorithm: jwt.SigningMethodHS512,
 		Issuer:    issuer,
-		Secret:    secret,
+		Secret:    "secret_jwt",
 	}
 }
 
